@@ -1,8 +1,8 @@
 class Trug < Formula
   desc "Privacy-first local iPhone backup and inspection CLI for macOS"
   homepage "https://github.com/deaugarcon/trug"
-  url "https://github.com/deaugarcon/trug/archive/refs/tags/v0.1.0-alpha.tar.gz"
-  sha256 "2727e22beed386cb046241f043765937752e78c697de43753c520af10a68eda4"
+  url "https://github.com/deaugarcon/trug/archive/refs/tags/v0.1.1-alpha.tar.gz"
+  sha256 "983b35d4dce8b4a09cd57633872e37f44971032e08ffeb69e70f09bfd198af05"
   license "MIT"
 
   depends_on "autoconf" => :build
@@ -75,7 +75,7 @@ class Trug < Formula
   end
 
   test do
-    assert_match "0.1.0-alpha", shell_output("#{bin}/trug --version")
+    assert_match "0.1.1-alpha", shell_output("#{bin}/trug --version")
     # An unknown store is a usage error (exit 64) — exercises the CLI parser
     # without needing a paired device or a backup on the test machine.
     assert_match(/error|usage/i,
