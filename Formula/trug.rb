@@ -5,6 +5,13 @@ class Trug < Formula
   sha256 "983b35d4dce8b4a09cd57633872e37f44971032e08ffeb69e70f09bfd198af05"
   license "MIT"
 
+  bottle do
+    root_url "https://github.com/deaugarcon/homebrew-tap/releases/download/trug-0.1.1-alpha"
+    rebuild 1
+    sha256 cellar: :any, arm64_tahoe:   "f4c67c173e66e5231f2c5044c5456c7f21b2070745fb921e25ec6f17b2aa4eb7"
+    sha256 cellar: :any, arm64_sequoia: "1c94ca007c36699cbb15369bf79073a8fd534b9550669686b4b9c6be67526250"
+  end
+
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "libtool" => :build
