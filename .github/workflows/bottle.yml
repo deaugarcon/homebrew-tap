@@ -22,6 +22,15 @@ jobs:
       RELEASE_TAG: ${{ inputs.release_tag }}
       REPO: ${{ github.repository }}
     steps:
+      - name: Ensure Swift 6 toolchain
+        run: |
+          if ! swift --version 2>/dev/null | grep -qE 'Swift version ([6-9]|[1-9][0-9])\.'; then
+            latest=$(ls -d /Applications/Xcode_1[6-9]*.app 2>/dev/null | sort -V | tail -1)
+            [ -n "$latest" ] || { echo "No Swift 6 Xcode on this image" >&2; exit 1; }
+            sudo xcode-select -s "$latest/Contents/Developer"
+          fi
+          swift --version
+
       - name: Tap and build with bottling hooks
         run: |
           brew tap deaugarcon/tap
