@@ -1,0 +1,22 @@
+name: pour-test
+on:
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: "macOS runner image to verify pouring on"
+        required: true
+        default: "macos-15"
+
+jobs:
+  pour:
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 20
+    steps:
+      - name: Install must pour a bottle, not build from source
+        run: |
+          brew tap deaugarcon/tap
+          out=$(brew install deaugarcon/tap/trug 2>&1)
+          echo "$out"
+          echo "$out" | grep -q "Pouring trug--" || { echo "FAIL: bottle was not poured" >&2; exit 1; }
+          trug --version | grep -q "0.1.1-alpha"
+          brew test deaugarcon/tap/trug

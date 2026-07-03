@@ -1,0 +1,61 @@
+name: bottle
+on:
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: "macOS runner image (determines the bottle's OS tag)"
+        required: true
+        default: "macos-15"
+      release_tag:
+        description: "Tap release that hosts the bottle assets"
+        required: true
+        default: "trug-0.1.1-alpha"
+
+permissions:
+  contents: write
+
+jobs:
+  bottle:
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 45
+    env:
+      RELEASE_TAG: ${{ inputs.release_tag }}
+      REPO: ${{ github.repository }}
+    steps:
+      - name: Tap and build with bottling hooks
+        run: |
+          brew tap deaugarcon/tap
+          brew install --build-bottle deaugarcon/tap/trug
+
+      - name: Bottle
+        run: |
+          mkdir bottle && cd bottle
+          brew bottle --json \
+            --root-url="https://github.com/${REPO}/releases/download/${RELEASE_TAG}" \
+            deaugarcon/tap/trug
+          ls -la
+          cat ./*.json
+
+      - name: Upload bottle to tap release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd bottle
+          gh release create "$RELEASE_TAG" -R "$REPO" \
+            --title "trug bottles ($RELEASE_TAG)" \
+            --notes "Prebuilt Homebrew bottles. Installed automatically by brew; not for manual download." \
+            || true
+          for f in *.bottle*.tar.gz; do
+            gh release upload "$RELEASE_TAG" -R "$REPO" "$f" --clobber
+            single="${f/--/-}"
+            if [ "$single" != "$f" ]; then
+              cp "$f" "$single"
+              gh release upload "$RELEASE_TAG" -R "$REPO" "$single" --clobber
+            fi
+          done
+
+      - name: Publish bottle JSON (sha256 + tag) as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bottle-json-${{ inputs.runner }}
+          path: bottle/*.json
